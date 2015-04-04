@@ -82,7 +82,8 @@ lazy val root =  project.in( file(".") )
           "org.joda" % "joda-convert" % "1.2",
           "com.datastax.cassandra"     % "cassandra-driver-core" 				           % "2.1.1"  exclude("org.xerial.snappy", "snappy-java"),
           "commons-io"                 %  "commons-io"                             % "2.4"    % "test",
-          "org.xerial.snappy"          % "snappy-java"           				           % "1.1.1.3"
+          "org.xerial.snappy"          % "snappy-java"           				           % "1.1.1.3",
+          "org.scalaz"                 %% "scalaz-core"                            % "7.1.1"
         )
       }
   ).configs (MultiJvm)
