@@ -72,30 +72,28 @@ object BankRoot {
 
 }
 
-object BankApp extends App {
+object UcContributeCash {
   import BankRoot._
   import Domain._
 
-  object UcContributeCash {
+  def execute(bankAccount: Account, cash: Float): (TransactionHistory, TransactionHistory) = {
 
-    def execute(bankAccount: Account, cash: Float) = {
+    val oldTh: TransactionHistory = BankOperation.findAccount(bankAccount)(bank)
 
-      val oldTh: TransactionHistory = BankOperation.findAccount(bankAccount)(bank)
+    val m = for {
+      _  <- TransactionOperation.contribute(cash)
+      th <- TransactionOperation.balance
+    } yield th
 
-      val m = for {
-        _  <- TransactionOperation.contribute(cash)
-        th <- TransactionOperation.balance
-      } yield th
-      val (newTh, _) = m.run(oldTh)
+    val (newTh, _) = m.run(oldTh)
 
-      println(oldTh)
-      println(newTh)
-
-    }
+    (oldTh, newTh)
   }
+}
 
-  println(s"Bank: $bank")
-  UcContributeCash.execute("Matt", 100f)
-  println(s"Bank: $bank")
+object BankApp extends App {
 
+  val (oldTh, newTh) = UcContributeCash.execute("Matt", 100f)
+  println(s"Old Th: $oldTh")
+  println(s"New Th: $newTh")
 }
