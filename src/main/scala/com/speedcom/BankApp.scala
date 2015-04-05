@@ -57,19 +57,24 @@ object TransactionOperation {
 
 }
 
-object BankOperation {
+trait AccountFinder {
+  def findAccount(account: Account): Bank => TransactionHistory
+}
+
+class BankAccountFinder extends AccountFinder {
   import Domain._
 
   def findAccount(account: Account): Bank => TransactionHistory = bank => bank(account)
 
 }
 
-
-case class UcContributeCash(bank: Bank) extends ((Account, Float) => (TransactionHistory, TransactionHistory)) {
+case class UcContributeCash(bank: Bank,
+                            accountFinder: AccountFinder)
+  extends ((Account, Float) => (TransactionHistory, TransactionHistory)) {
 
   def apply(bankAccount: Account, cash: Float): (TransactionHistory, TransactionHistory) = {
 
-    val oldTh: TransactionHistory = BankOperation.findAccount(bankAccount)(bank)
+    val oldTh: TransactionHistory = accountFinder.findAccount(bankAccount)(bank)
 
     val m = for {
       _  <- TransactionOperation.contribute(cash)
@@ -84,7 +89,8 @@ case class UcContributeCash(bank: Bank) extends ((Account, Float) => (Transactio
 
 trait Module {
   val bankRoot = new BankRoot
-  val ucContributeCash = UcContributeCash(bankRoot.bank)
+  val accountFinder = new BankAccountFinder
+  val ucContributeCash = UcContributeCash(bankRoot.bank, accountFinder)
 }
 
 object BankApp extends App with Module {
