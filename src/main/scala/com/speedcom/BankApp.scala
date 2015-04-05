@@ -1,6 +1,9 @@
 package com.speedcom
 
 
+import com.speedcom.Domain.{Bank, Account, TransactionHistory}
+import com.speedcom.inmem.BankRoot
+
 import scalaz._
 import Scalaz._
 
@@ -56,27 +59,15 @@ object TransactionOperation {
 
 object BankOperation {
   import Domain._
-  import StateDomain._
 
   def findAccount(account: Account): Bank => TransactionHistory = bank => bank(account)
 
 }
 
-// OUTER WORLD - MUTABLE ONE
-object BankRoot {
-  import Domain._
 
-  var bank: Bank = Map(
-    "Matt"   -> List(50f),
-    "Justin" -> List(50f, 100f, -40f, 700f))
+case class UcContributeCash(bank: Bank) extends ((Account, Float) => (TransactionHistory, TransactionHistory)) {
 
-}
-
-object UcContributeCash {
-  import BankRoot._
-  import Domain._
-
-  def execute(bankAccount: Account, cash: Float): (TransactionHistory, TransactionHistory) = {
+  def apply(bankAccount: Account, cash: Float): (TransactionHistory, TransactionHistory) = {
 
     val oldTh: TransactionHistory = BankOperation.findAccount(bankAccount)(bank)
 
@@ -91,9 +82,14 @@ object UcContributeCash {
   }
 }
 
-object BankApp extends App {
+trait Module {
+  val bankRoot = new BankRoot
+  val ucContributeCash = UcContributeCash(bankRoot.bank)
+}
 
-  val (oldTh, newTh) = UcContributeCash.execute("Matt", 100f)
+object BankApp extends App with Module {
+
+  val (oldTh, newTh) = ucContributeCash("Matt", 100f)
   println(s"Old Th: $oldTh")
   println(s"New Th: $newTh")
 }
