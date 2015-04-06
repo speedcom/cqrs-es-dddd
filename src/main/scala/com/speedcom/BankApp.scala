@@ -2,7 +2,6 @@ package com.speedcom
 
 
 import com.speedcom.Domain.{Bank, BankAccount, TransactionHistory}
-import com.speedcom.inmem.{InMemBankAccountFinder, BankRoot}
 
 import scalaz._
 import Scalaz._
@@ -15,7 +14,6 @@ package object Domain {
 
 package object StateDomain {
   type Tx[A] = State[TransactionHistory, A]
-  type Bx[A] = State[Bank, A]
 }
 
 object TransactionOperation {
@@ -55,45 +53,6 @@ object TransactionOperation {
     } yield ww
 
 }
-
-trait BankAccountFinder {
-  def findAccount(account: BankAccount): TransactionHistory
-}
-
-case class UcContributeCash(bankAccountFinder: BankAccountFinder)
-  extends ((BankAccount, Float) => (TransactionHistory, TransactionHistory)) {
-
-  def apply(bankAccount: BankAccount, cash: Float): (TransactionHistory, TransactionHistory) = {
-
-    val oldTh: TransactionHistory = bankAccountFinder.findAccount(bankAccount)
-
-    val m = for {
-      _  <- TransactionOperation.contribute(cash)
-      th <- TransactionOperation.balance
-    } yield th
-
-    val (newTh, _) = m.run(oldTh)
-
-    (oldTh, newTh)
-  }
-}
-
-case class UcGetBalance(bankAccountFinder: BankAccountFinder) extends (BankAccount => Float) {
-  def apply(bankAccount: BankAccount): Float = {
-
-    val trans = bankAccountFinder.findAccount(bankAccount)
-
-    val m = for {
-      th <- TransactionOperation.balance
-    } yield th
-
-    val (th, sum) = m.run(trans)
-
-    sum
-
-  }
-}
-
 
 object BankApp extends App with Module {
 

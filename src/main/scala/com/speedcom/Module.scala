@@ -1,5 +1,7 @@
 package com.speedcom
 
+import com.speedcom.core.bank_account.boundary.BankAccountFinder
+import com.speedcom.core.bank_account.usecases.{UcGetBalance, UcContributeCash}
 import com.speedcom.inmem.{InMemBankAccountFinder, BankRoot}
 
 
