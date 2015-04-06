@@ -3,6 +3,7 @@ package com.speedcom
 import scalaz._
 import Scalaz._
 
+/*
 package object StateDomain {
   type Tx[A] = State[TransactionHistory, A]
 }
@@ -44,7 +45,7 @@ object TransactionOperation {
     } yield ww
 
 }
-
+*/
 object BankApp extends App with Module {
 
   println(s"Balance before operation: ${ucGetBalance("Matt")}")
