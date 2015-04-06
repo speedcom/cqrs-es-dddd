@@ -1,20 +1,19 @@
 package com.speedcom
 
 
-import com.speedcom.Domain.{Bank, Account, TransactionHistory}
-import com.speedcom.inmem.BankRoot
+import com.speedcom.Domain.{Bank, BankAccount, TransactionHistory}
+import com.speedcom.inmem.{InMemBankAccountFinder, BankRoot}
 
 import scalaz._
 import Scalaz._
 
 package object Domain {
-  type Account = String
+  type BankAccount = String
   type TransactionHistory = List[Float]
-  type Bank = Map[Account, TransactionHistory]
+  type Bank = Map[BankAccount, TransactionHistory]
 }
 
 package object StateDomain {
-  import Domain._
   type Tx[A] = State[TransactionHistory, A]
   type Bx[A] = State[Bank, A]
 }
@@ -57,24 +56,16 @@ object TransactionOperation {
 
 }
 
-trait AccountFinder {
-  def findAccount(account: Account): Bank => TransactionHistory
+trait BankAccountFinder {
+  def findAccount(account: BankAccount): TransactionHistory
 }
 
-class BankAccountFinder extends AccountFinder {
-  import Domain._
+case class UcContributeCash(bankAccountFinder: BankAccountFinder)
+  extends ((BankAccount, Float) => (TransactionHistory, TransactionHistory)) {
 
-  def findAccount(account: Account): Bank => TransactionHistory = bank => bank(account)
+  def apply(bankAccount: BankAccount, cash: Float): (TransactionHistory, TransactionHistory) = {
 
-}
-
-case class UcContributeCash(bank: Bank,
-                            accountFinder: AccountFinder)
-  extends ((Account, Float) => (TransactionHistory, TransactionHistory)) {
-
-  def apply(bankAccount: Account, cash: Float): (TransactionHistory, TransactionHistory) = {
-
-    val oldTh: TransactionHistory = accountFinder.findAccount(bankAccount)(bank)
+    val oldTh: TransactionHistory = bankAccountFinder.findAccount(bankAccount)
 
     val m = for {
       _  <- TransactionOperation.contribute(cash)
@@ -87,15 +78,31 @@ case class UcContributeCash(bank: Bank,
   }
 }
 
-trait Module {
-  val bankRoot = new BankRoot
-  val accountFinder = new BankAccountFinder
-  val ucContributeCash = UcContributeCash(bankRoot.bank, accountFinder)
+case class UcGetBalance(bankAccountFinder: BankAccountFinder) extends (BankAccount => Float) {
+  def apply(bankAccount: BankAccount): Float = {
+
+    val trans = bankAccountFinder.findAccount(bankAccount)
+
+    val m = for {
+      th <- TransactionOperation.balance
+    } yield th
+
+    val (th, sum) = m.run(trans)
+
+    sum
+
+  }
 }
 
+
 object BankApp extends App with Module {
+
+  println(s"Balance before operation: ${ucGetBalance("Matt")}")
 
   val (oldTh, newTh) = ucContributeCash("Matt", 100f)
   println(s"Old Th: $oldTh")
   println(s"New Th: $newTh")
+
+  println(s"Balance after operation: ${ucGetBalance("Matt")}")
+
 }
