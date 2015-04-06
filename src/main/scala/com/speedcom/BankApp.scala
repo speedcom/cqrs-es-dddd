@@ -1,16 +1,7 @@
 package com.speedcom
 
-
-import com.speedcom.Domain.{Bank, BankAccount, TransactionHistory}
-
 import scalaz._
 import Scalaz._
-
-package object Domain {
-  type BankAccount = String
-  type TransactionHistory = List[Float]
-  type Bank = Map[BankAccount, TransactionHistory]
-}
 
 package object StateDomain {
   type Tx[A] = State[TransactionHistory, A]
@@ -59,8 +50,7 @@ object BankApp extends App with Module {
   println(s"Balance before operation: ${ucGetBalance("Matt")}")
 
   val (oldTh, newTh) = ucContributeCash("Matt", 100f)
-  println(s"Old Th: $oldTh")
-  println(s"New Th: $newTh")
+  println(s"Old Th: $oldTh, New Th: $newTh")
 
   println(s"Balance after operation: ${ucGetBalance("Matt")}")
 

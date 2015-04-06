@@ -1,6 +1,5 @@
 package com.speedcom.core.bank_account.usecases
 
-import com.speedcom.Domain.{BankAccount, TransactionHistory}
 import com.speedcom.TransactionOperation
 import com.speedcom.core.bank_account.boundary.BankAccountFinder
 
