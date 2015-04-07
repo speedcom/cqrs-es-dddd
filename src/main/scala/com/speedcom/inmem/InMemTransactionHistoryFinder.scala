@@ -8,6 +8,6 @@ class InMemTransactionHistoryFinder(bankRoot: BankRoot) extends TransactionHisto
   override def findByBankAccount(account: BankAccount): Option[TransactionHistory] = {
     bankRoot
       .transactionHistories
-      .find(_.bankAccountNumber.number == account.bankAccountNumber)
+      .find(_.bankAccountNumber.number == account.bankAccountNumber.number)
   }
 }

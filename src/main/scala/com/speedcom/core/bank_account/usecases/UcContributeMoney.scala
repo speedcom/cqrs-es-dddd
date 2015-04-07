@@ -7,9 +7,15 @@ import scalaz._
 import Scalaz._
 
 case class UcContributeMoney(bankAccountFinder: BankAccountFinder)
-  extends ((BankAccountNumber, Money) => State[BankAccount]) {
+  extends ((BankAccountNumber, Money) => BankAccount) {
 
-  def apply(bankAccountNumber: BankAccountNumber, money: Money): State[BankAccount] = {
-    ???
+  def apply(number: BankAccountNumber, money: Money): BankAccount = {
+
+    for {
+      bankAccount <- bankAccountFinder.findByNumber(number)
+    } yield ???
+
+
+      ???
   }
 }
