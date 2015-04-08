@@ -6,3 +6,4 @@ object Types {
   type Error[+A] = \/[String, A]
   type Result[A] = OptionT[Error, A]
 }
+

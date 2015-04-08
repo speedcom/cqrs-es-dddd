@@ -21,7 +21,7 @@ class BankRoot {
   var transactionHistories = Seq(
     TransactionHistory(BankAccountNumber("5555"*5), transactions = List(Transaction(TransactionId(1L), BankAccountNumber("1111"*5), Money(10000)))),
     TransactionHistory(BankAccountNumber("3454"*5), transactions = List.empty),
-    TransactionHistory(BankAccountNumber("1111"*5), transactions = List(Transaction(TransactionId(1L), BankAccountNumber("3454"*5), Money(-10000))))
+    TransactionHistory(BankAccountNumber("1111"*5), transactions = List(Transaction(TransactionId(1L), BankAccountNumber("5555"*5), Money(-10000))))
   )
 
 }
